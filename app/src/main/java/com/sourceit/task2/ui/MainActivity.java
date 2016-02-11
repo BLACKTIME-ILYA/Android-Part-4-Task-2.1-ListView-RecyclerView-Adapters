@@ -3,9 +3,10 @@ package com.sourceit.task2.ui;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ListView;
 
 import com.sourceit.task2.R;
 import com.sourceit.task2.model.Product;
@@ -16,9 +17,8 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button buutonPause;
+    private Button buttonPause;
 
-    private MyAdapter myAdapter;
     private Random random = new Random();
 
     private boolean paused;
@@ -37,26 +37,29 @@ public class MainActivity extends AppCompatActivity {
     private int[] numbersBuyProducts = new int[COUNT_BUYS];
     private int[] numberOfPurchasedGoods = new int[COUNT_BUYS];
 
+    RecyclerView products_list;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        buutonPause = (Button) findViewById(R.id.button_pause);
+        buttonPause = (Button) findViewById(R.id.button_pause);
+        products_list = (RecyclerView) findViewById(R.id.products_list);
 
         for (int i = 0; i < 5; i++) {
             products.add(new Product("product" + i, NUMBER_OF_GOODS));
             positions.add(i);
         }
 
-        ListView products_list = (ListView) findViewById(R.id.products_list);
-        myAdapter = new MyAdapter(this, products);
-        products_list.setAdapter(myAdapter);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        products_list.setLayoutManager(layoutManager);
+        products_list.setAdapter(new RecyclerViewAdapter(products));
 
         repeatBuys();
 
-        buutonPause.setOnClickListener(new View.OnClickListener() {
+        buttonPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!paused) {
@@ -103,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
     private void repeatBuys() {
         L.d("repeatBuys");
         if (!paused) {
-            myAdapter.notifyDataSetChanged();
+            products_list.getAdapter().notifyDataSetChanged();
             if (!products.isEmpty()) {
                 new MyAsyncTask().execute();
             }
